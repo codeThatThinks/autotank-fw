@@ -167,8 +167,10 @@ void loop()
   }
   else
   {
+    if(!failsafeState) armState = false;
     digitalWrite(DEBUG_LED_1, LOW);
-    motorOff();
+    vesc_set_duty(VESC_ID_LEFT, 0);
+    vesc_set_duty(VESC_ID_RIGHT, 0);
   }
 
   // Heartbeat blink task
@@ -272,7 +274,7 @@ void loop()
   }
 
   // software triggered estop
-  if (((channel[7] < 725) && (channel[7] > 625)) || failsafeState)
+  if (((channel[7] < 725) && (channel[7] > 625)) || (armState && failsafeState))
   {
     Serial.println("E-Stopped");
 
@@ -440,13 +442,6 @@ void calcTankMix(void)
 
 long userMap(float x, float in_min, float in_max, float out_min, float out_max) {
   return (x - in_min) * (out_max - out_min) / (in_max - in_min) + out_min;
-}
-
-
-void motorOff(void) {
-  vesc_set_duty(VESC_ID_LEFT, 0);
-  vesc_set_duty(VESC_ID_RIGHT, 0);
-  armState = false;
 }
 
 void print_vesc_values(void)
